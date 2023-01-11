@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 public class WebClientConfig {
     private static final String BASE_URL = "http://localhost:8081/api/v1/fine/";
     public static final int TIMEOUT = 10000;
+
     @Bean
     public WebClient webClientWithTimeout() {
         final var tcpClient = TcpClient

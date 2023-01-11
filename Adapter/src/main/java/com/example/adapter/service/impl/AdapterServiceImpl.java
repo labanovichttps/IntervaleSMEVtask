@@ -5,10 +5,8 @@ import com.example.adapter.dao.FineResponse;
 import com.example.adapter.service.AdapterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -27,20 +25,20 @@ public class AdapterServiceImpl implements AdapterService {
     private final String FINE_SEND_ACKNOWLEDGE = "/acknowledge";
 
 
-    public ResponseEntity<FineResponse> requestFineFromSMEV(FineRequest fineRequest){
+    public ResponseEntity<FineResponse> requestFineFromSMEV(FineRequest fineRequest) {
         try {
             FineRequest request = requestFine(fineRequest).block();
             FineResponse fineResponse = getResult(request).block();
             sendAcknowledge(fineResponse).block();
-            return new ResponseEntity<>(fineResponse,HttpStatus.OK);
-        }
-        catch (Exception e){
+            return new ResponseEntity<>(fineResponse, HttpStatus.OK);
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.TOO_MANY_REQUESTS);
         }
     }
+
     public Mono<FineRequest> requestFine(FineRequest fineRequest) {
-      return webClient.post()
+        return webClient.post()
                 .uri(FINE_REQUEST)
                 .body(BodyInserters.fromValue(fineRequest))
                 .retrieve()
@@ -52,7 +50,7 @@ public class AdapterServiceImpl implements AdapterService {
     }
 
     public Mono<FineResponse> getResult(FineRequest fineRequest) {
-        return  webClient.post()
+        return webClient.post()
                 .uri(FINE_GET_RESULT)
                 .body(BodyInserters.fromValue(fineRequest))
                 .retrieve()
@@ -70,7 +68,7 @@ public class AdapterServiceImpl implements AdapterService {
                 .body(BodyInserters.fromValue(fineResponse))
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,
-                error -> Mono.error(new RuntimeException("API not found")))
+                        error -> Mono.error(new RuntimeException("API not found")))
                 .onStatus(HttpStatus::is5xxServerError,
                         error -> Mono.error(new RuntimeException("Server is not responding")))
                 .bodyToMono(ResponseEntity.class);
