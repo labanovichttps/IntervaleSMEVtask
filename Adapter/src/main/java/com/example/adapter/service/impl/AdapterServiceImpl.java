@@ -6,6 +6,7 @@ import com.example.adapter.service.AdapterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -26,16 +27,16 @@ public class AdapterServiceImpl implements AdapterService {
     private final String FINE_SEND_ACKNOWLEDGE = "/acknowledge";
 
 
-    public FineResponse requestFineFromSMEV(FineRequest fineRequest){
+    public ResponseEntity<FineResponse> requestFineFromSMEV(FineRequest fineRequest){
         try {
             FineRequest request = requestFine(fineRequest).block();
             FineResponse fineResponse = getResult(request).block();
-            sendAcknowledge(fineResponse);
-            return fineResponse;
+            sendAcknowledge(fineResponse).block();
+            return new ResponseEntity<>(fineResponse,HttpStatus.OK);
         }
         catch (Exception e){
             System.out.println(e.getMessage());
-            return null;
+            return new ResponseEntity<>(HttpStatus.TOO_MANY_REQUESTS);
         }
     }
     public Mono<FineRequest> requestFine(FineRequest fineRequest) {
@@ -63,7 +64,15 @@ public class AdapterServiceImpl implements AdapterService {
                 .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)));
     }
 
-    public boolean sendAcknowledge(FineResponse fineResponse) {
-        return true;
+    public Mono<ResponseEntity> sendAcknowledge(FineResponse fineResponse) {
+        return webClient.post()
+                .uri(FINE_SEND_ACKNOWLEDGE)
+                .body(BodyInserters.fromValue(fineResponse))
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,
+                error -> Mono.error(new RuntimeException("API not found")))
+                .onStatus(HttpStatus::is5xxServerError,
+                        error -> Mono.error(new RuntimeException("Server is not responding")))
+                .bodyToMono(ResponseEntity.class);
     }
 }

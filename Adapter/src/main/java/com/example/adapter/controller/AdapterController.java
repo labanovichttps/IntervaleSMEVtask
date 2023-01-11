@@ -17,6 +17,6 @@ public class AdapterController {
 
     @GetMapping("/fine/request")
     public ResponseEntity<FineResponse> getFine(@RequestBody FineRequest fineRequest){
-        return new ResponseEntity<FineResponse>(adapterService.requestFineFromSMEV(fineRequest), HttpStatus.OK);
+        return adapterService.requestFineFromSMEV(fineRequest);
     }
 }
