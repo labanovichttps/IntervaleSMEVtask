@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface FineRequestRepo extends JpaRepository<FineRequest, Long> {
 
-    Optional<FineRequest> findFineRequestByVehicleCertificate(String vehicleCertificate);
+    Optional<FineRequest> findFirstByVehicleCertificate(String vehicleCertificate);
 
-    Optional<FineRequest> findFineRequestByTaxPayerID(String taxPayerID);
+    Optional<FineRequest> findFirstByTaxPayerID(String taxPayerID);
 }

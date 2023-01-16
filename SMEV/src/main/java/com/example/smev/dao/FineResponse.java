@@ -1,7 +1,9 @@
 package com.example.smev.dao;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -10,9 +12,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.math.BigDecimal;
 import java.sql.Date;
-
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Entity
+@AllArgsConstructor
+@Builder
 public class FineResponse {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,11 +30,6 @@ public class FineResponse {
     private Date resolutionDate;
     private String article;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
+    public FineResponse() {
     }
 }

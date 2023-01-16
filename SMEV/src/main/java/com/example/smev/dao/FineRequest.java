@@ -1,5 +1,6 @@
 package com.example.smev.dao;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -8,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Entity
 public class FineRequest {
@@ -16,7 +18,6 @@ public class FineRequest {
     private Long id;
     private String vehicleCertificate;
     private String taxPayerID;
-
     public void setId(Long id) {
         this.id = id;
     }

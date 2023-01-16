@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class ResponseQueueServiceImpl implements ResponseQueueService {
@@ -17,9 +19,9 @@ public class ResponseQueueServiceImpl implements ResponseQueueService {
 
     public ResponseEntity<FineResponse> getFineResponse(FineRequest fineRequest) {
         FineResponse fineResponse = new FineResponse();
-        if (fineRequest.getTaxPayerID().isEmpty()) {
+        if (Objects.isNull(fineRequest.getTaxPayerID())) {
             fineResponse = fineResponseRepo.findFirstByVehicleCertificate(fineRequest.getVehicleCertificate()).orElse(new FineResponse());
-        } else if (fineRequest.getVehicleCertificate().isEmpty()) {
+        } else if (Objects.isNull(fineRequest.getVehicleCertificate())) {
             fineResponse = fineResponseRepo.findFirstByTaxPayerID(fineRequest.getTaxPayerID()).orElse(new FineResponse());
         }
         else {
