@@ -1,11 +1,13 @@
 package com.example.adapter.dao;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.sql.Date;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class FineResponse {
     private String vehicleCertificate;
