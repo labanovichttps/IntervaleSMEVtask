@@ -4,6 +4,7 @@ import com.example.adapter.dao.FineRequest;
 import com.example.adapter.dao.FineResponse;
 import com.example.adapter.service.AdapterService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,10 +27,10 @@ public class AdapterServiceImpl implements AdapterService {
     private final String FINE_SEND_ACKNOWLEDGE = "/acknowledge";
 
 
-    public ResponseEntity<FineResponse> requestFineFromSMEV(FineRequest fineRequest) {
+    public ResponseEntity<List<FineResponse>> requestFineFromSMEV(FineRequest fineRequest) {
         try {
             FineRequest request = requestFine(fineRequest).block();
-            FineResponse fineResponse = getResult(request).block();
+            List<FineResponse> fineResponse = getResult(request).block();
             sendAcknowledge(fineResponse).block();
             return new ResponseEntity<>(fineResponse, HttpStatus.OK);
         } catch (Exception e) {
@@ -49,7 +51,7 @@ public class AdapterServiceImpl implements AdapterService {
                 .bodyToMono(FineRequest.class);
     }
 
-    public Mono<FineResponse> getResult(FineRequest fineRequest) {
+    public Mono<List<FineResponse>> getResult(FineRequest fineRequest) {
         return webClient.post()
                 .uri(FINE_GET_RESULT)
                 .body(BodyInserters.fromValue(fineRequest))
@@ -58,11 +60,11 @@ public class AdapterServiceImpl implements AdapterService {
                         error -> Mono.error(new RuntimeException("API not found")))
                 .onStatus(HttpStatus::is5xxServerError,
                         error -> Mono.error(new RuntimeException("Server is not responding")))
-                .bodyToMono(FineResponse.class)
+                .bodyToMono(new ParameterizedTypeReference<List<FineResponse>>() {})
                 .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)));
     }
 
-    public Mono<ResponseEntity> sendAcknowledge(FineResponse fineResponse) {
+    public Mono<ResponseEntity> sendAcknowledge(List<FineResponse> fineResponse) {
         return webClient.post()
                 .uri(FINE_SEND_ACKNOWLEDGE)
                 .body(BodyInserters.fromValue(fineResponse))

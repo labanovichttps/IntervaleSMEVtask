@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/v1/")
 @RequiredArgsConstructor
@@ -18,7 +20,7 @@ public class AdapterController {
     private final AdapterService adapterService;
 
     @GetMapping("/fine/request")
-    public ResponseEntity<FineResponse> getFine(@RequestBody FineRequest fineRequest) {
+    public ResponseEntity<List<FineResponse>> getFine(@RequestBody FineRequest fineRequest) {
         return adapterService.requestFineFromSMEV(fineRequest);
     }
 }

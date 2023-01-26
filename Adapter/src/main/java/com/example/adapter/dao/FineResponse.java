@@ -10,6 +10,7 @@ import java.sql.Date;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class FineResponse {
+    private Long id;
     private String vehicleCertificate;
     private String taxPayerID;
     private BigDecimal accruedAmount;
