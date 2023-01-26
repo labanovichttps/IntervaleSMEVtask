@@ -32,4 +32,14 @@ public class FineResponse {
 
     public FineResponse() {
     }
+
+    public FineResponse(Fine fine) {
+        this.taxPayerID = fine.getTaxPayerID();
+        this.vehicleCertificate = fine.getVehicleCertificate();
+        this. article = fine.getArticle();
+        this.resolution = fine.getResolution();
+        this.fineAmount = fine.getFineAmount();
+        this.accruedAmount = fine.getAccruedAmount();
+        this.resolutionDate = fine.getResolutionDate();
+    }
 }

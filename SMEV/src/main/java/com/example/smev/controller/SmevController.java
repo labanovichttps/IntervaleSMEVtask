@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/fine/")
@@ -22,11 +24,11 @@ public class SmevController {
         return fineRequireService.saveFineRequestToQueue(fineRequest);
     }
     @PostMapping("/result")
-    public ResponseEntity<FineResponse> getResult(@RequestBody FineRequest fineRequest){
+    public ResponseEntity<List<FineResponse>> getResult(@RequestBody FineRequest fineRequest){
         return fineResponseService.getFineResponse(fineRequest);
     }
     @PostMapping("/acknowledge")
-    public ResponseEntity<HttpStatus> acknowledge(@RequestBody FineResponse fineResponse){
+    public ResponseEntity<HttpStatus> acknowledge(@RequestBody List<FineResponse> fineResponse){
         return fineResponseService.deleteResponseFromQueue(fineResponse);
     }
 }
