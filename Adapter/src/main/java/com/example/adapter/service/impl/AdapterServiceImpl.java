@@ -1,9 +1,11 @@
 package com.example.adapter.service.impl;
 
+import com.example.adapter.config.AdapterConfig;
 import com.example.adapter.dao.FineRequest;
 import com.example.adapter.dao.FineResponse;
 import com.example.adapter.service.AdapterService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +22,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdapterServiceImpl implements AdapterService {
 
-    private final WebClient webClient;
+    private final AdapterConfig adapterConfig;
 
-    private final String FINE_REQUEST = "/request";
-    private final String FINE_GET_RESULT = "/result";
-    private final String FINE_SEND_ACKNOWLEDGE = "/acknowledge";
+    private final WebClient webClient;
 
 
     public ResponseEntity<List<FineResponse>> requestFineFromSMEV(FineRequest fineRequest) {
@@ -41,7 +41,7 @@ public class AdapterServiceImpl implements AdapterService {
 
     public Mono<FineRequest> requestFine(FineRequest fineRequest) {
         return webClient.post()
-                .uri(FINE_REQUEST)
+                .uri(adapterConfig.getFineRequest())
                 .body(BodyInserters.fromValue(fineRequest))
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,
@@ -53,7 +53,7 @@ public class AdapterServiceImpl implements AdapterService {
 
     public Mono<List<FineResponse>> getResult(FineRequest fineRequest) {
         return webClient.post()
-                .uri(FINE_GET_RESULT)
+                .uri(adapterConfig.getFineResult())
                 .body(BodyInserters.fromValue(fineRequest))
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,
@@ -61,12 +61,12 @@ public class AdapterServiceImpl implements AdapterService {
                 .onStatus(HttpStatus::is5xxServerError,
                         error -> Mono.error(new RuntimeException("Server is not responding")))
                 .bodyToMono(new ParameterizedTypeReference<List<FineResponse>>() {})
-                .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)));
+                .retryWhen(Retry.fixedDelay(adapterConfig.getRetryCount(), Duration.ofSeconds(3)));
     }
 
     public Mono<ResponseEntity> sendAcknowledge(List<FineResponse> fineResponse) {
         return webClient.post()
-                .uri(FINE_SEND_ACKNOWLEDGE)
+                .uri(adapterConfig.getFineAcknowledge())
                 .body(BodyInserters.fromValue(fineResponse))
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,
